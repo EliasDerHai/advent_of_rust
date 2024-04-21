@@ -96,7 +96,7 @@ fn inner_solve_day_03_part_2(lines: Vec<String>) -> u32 {
 }
 
 
-fn parse_line(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
+fn parse_line(line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
     let mut numbers: Vec<Number> = Vec::new();
     let mut specials: Vec<Position> = Vec::new();
 
@@ -113,7 +113,7 @@ fn parse_line(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
                 numbers.push(Number {
                     digits: digits_of_number.iter()
                         .enumerate()
-                        .map(|(digit_index, &c)| {
+                        .map(|(digit_index, &_c)| {
                             Position { row, col: (index - digit_index - 1) as u32 }
                         })
                         .collect(),
@@ -140,7 +140,7 @@ fn parse_line(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
         numbers.push(Number {
             digits: digits_of_number.iter()
                 .enumerate()
-                .map(|(digit_index, &c)| {
+                .map(|(digit_index, &_c)| {
                     Position { row, col: (line.len() - 1 - digit_index ) as u32 }
                 })
                 .collect(),
@@ -155,7 +155,7 @@ fn parse_line(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
     return (numbers, specials);
 }
 
-fn parse_line_part2(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
+fn parse_line_part2(line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
     let mut numbers: Vec<Number> = Vec::new();
     let mut specials: Vec<Position> = Vec::new();
 
@@ -172,7 +172,7 @@ fn parse_line_part2(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
                 numbers.push(Number {
                     digits: digits_of_number.iter()
                         .enumerate()
-                        .map(|(digit_index, &c)| {
+                        .map(|(digit_index, &_c)| {
                             Position { row, col: (index - digit_index - 1) as u32 }
                         })
                         .collect(),
@@ -199,7 +199,7 @@ fn parse_line_part2(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
         numbers.push(Number {
             digits: digits_of_number.iter()
                 .enumerate()
-                .map(|(digit_index, &c)| {
+                .map(|(digit_index, &_c)| {
                     Position { row, col: (line.len() - 1 - digit_index ) as u32 }
                 })
                 .collect(),

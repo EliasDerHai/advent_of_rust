@@ -1,6 +1,6 @@
 use crate::util::read_lines;
 
-pub fn solve_day_01_part_1() {
+pub fn solve_day_01_part_1() -> u32 {
     let filename = "./src/one/input.txt";
     match read_lines(filename) {
         Ok(lines) => {
@@ -29,19 +29,26 @@ pub fn solve_day_01_part_1() {
                 sum += dec + single;
             }
             println!("Final sum: {sum}");
+            sum
         }
-        Err(e) => println!("Error: {}", e),
+        Err(e) => {
+            println!("Error: {}", e);
+            0
+        }
     }
 }
 
-pub fn solve_day_01_part_2() {
+pub fn solve_day_01_part_2() -> u32 {
     let filename = "./src/one/input.txt";
 
     match read_lines(filename) {
         Ok(lines) => {
-            calculate(lines);
+            calculate(lines)
         }
-        Err(e) => println!("Error: {}", e),
+        Err(e) => {
+            println!("Error: {}", e);
+            0
+        }
     }
 }
 
