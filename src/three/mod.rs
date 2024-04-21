@@ -51,13 +51,57 @@ fn inner_solve_day_03_part_1(lines: Vec<String>) -> u32 {
 }
 
 
+pub fn solve_day_03_part_2() -> u32 {
+    inner_solve_day_03_part_2(read_lines("./src/three/input.txt").unwrap())
+}
+
+fn inner_solve_day_03_part_2(lines: Vec<String>) -> u32 {
+    let (numbers, specials): (Vec<Number>, Vec<Position>) = lines
+        .iter()
+        .enumerate()
+        .map(|(index, line)| parse_line_part2(line.as_str(), index as u32))
+        .fold((Vec::new(), Vec::new()), |mut acc, (numbers, pos)| {
+            acc.0.extend(numbers);
+            acc.1.extend(pos);
+            acc
+        });
+
+    println!("{:?}", numbers);
+    println!("{:?}", specials);
+
+    let sum = specials.iter()
+        .map(|special| {
+            let partial_numbers: Vec<&Number> = numbers.iter().filter(|&number| number.digits.iter()
+                .find(|&digit|
+                        (special.col == digit.col || special.col + 1 == digit.col || special.col == digit.col + 1)
+                            && (special.row == digit.row || special.row + 1 == digit.row || special.row == digit.row + 1)
+                    ).is_some()
+                ).collect();
+
+            return if partial_numbers.len() != 2 {
+                0
+            } else {
+                partial_numbers.iter().map(|n| n.value).product()
+            }
+
+        })
+        .sum();
+
+    // println!("raw Numbers: {:?}", numbers);
+    // println!("Numbers: {:?}", numbers.iter().map(|n| n.value).collect::<Vec<u32>>());
+    // println!("Filtered: {:?}", filtered);
+
+    println!("Final sum: {sum}");
+    return sum;
+}
+
+
 fn parse_line(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
     let mut numbers: Vec<Number> = Vec::new();
     let mut specials: Vec<Position> = Vec::new();
 
     let mut digits_of_number: Vec<char> = Vec::new();
     for (index, char) in line.char_indices() {
-        println!("{index}: {char}");
         if char.is_numeric() {
             digits_of_number.push(char)
         } else {
@@ -70,7 +114,6 @@ fn parse_line(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
                     digits: digits_of_number.iter()
                         .enumerate()
                         .map(|(digit_index, &c)| {
-                            println!("{c}: {index} - {digit_index}");
                             Position { row, col: (index - digit_index - 1) as u32 }
                         })
                         .collect(),
@@ -107,14 +150,73 @@ fn parse_line(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
         digits_of_number.clear();
     }
 
-    println!("Numbers: {:?}", numbers);
-    println!("Specials: {:?}", specials);
+    // println!("Numbers: {:?}", numbers);
+    // println!("Specials: {:?}", specials);
+    return (numbers, specials);
+}
+
+fn parse_line_part2(mut line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
+    let mut numbers: Vec<Number> = Vec::new();
+    let mut specials: Vec<Position> = Vec::new();
+
+    let mut digits_of_number: Vec<char> = Vec::new();
+    for (index, char) in line.char_indices() {
+        if char.is_numeric() {
+            digits_of_number.push(char)
+        } else {
+            if !digits_of_number.is_empty() {
+                let value = digits_of_number.iter()
+                    .map(|&c| c.to_digit(10).unwrap())
+                    .fold(0, |acc, digit| acc * 10 + digit);
+
+                numbers.push(Number {
+                    digits: digits_of_number.iter()
+                        .enumerate()
+                        .map(|(digit_index, &c)| {
+                            Position { row, col: (index - digit_index - 1) as u32 }
+                        })
+                        .collect(),
+                    value,
+                });
+
+                digits_of_number.clear();
+            }
+
+            if char == '*' {
+                specials.push(Position {
+                    row,
+                    col: index as u32,
+                });
+            }
+        }
+    }
+
+    if !digits_of_number.is_empty() {
+        let value = digits_of_number.iter()
+            .map(|&c| c.to_digit(10).unwrap())
+            .fold(0, |acc, digit| acc * 10 + digit);
+
+        numbers.push(Number {
+            digits: digits_of_number.iter()
+                .enumerate()
+                .map(|(digit_index, &c)| {
+                    Position { row, col: (line.len() - 1 - digit_index ) as u32 }
+                })
+                .collect(),
+            value,
+        });
+
+        digits_of_number.clear();
+    }
+
+    // println!("Numbers: {:?}", numbers);
+    // println!("Specials: {:?}", specials);
     return (numbers, specials);
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::three::{inner_solve_day_03_part_1, parse_line, solve_day_03_part_1};
+    use crate::three::{inner_solve_day_03_part_1, inner_solve_day_03_part_2, parse_line, solve_day_03_part_1};
     use crate::util::read_lines;
 
     #[test]
@@ -216,6 +318,29 @@ mod tests {
             .collect();
 
         assert_eq!(925, inner_solve_day_03_part_1(lines));
+    }
+
+
+
+    #[test]
+    fn should_work_part2() {
+        let lines: Vec<String> = "
+            467..114..
+            ...*......
+            ..35..633.
+            ......#...
+            617*......
+            .....+.58.
+            ..592.....
+            ......755.
+            ...$.*....
+            .664.598.."
+            .split("\n")
+            .filter(|&line| !line.is_empty())
+            .map(|line| line.trim().to_string())
+            .collect();
+
+        assert_eq!(467835, inner_solve_day_03_part_2(lines));
     }
 }
 
