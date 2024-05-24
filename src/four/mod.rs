@@ -1,12 +1,11 @@
 use std::collections::VecDeque;
+
 use crate::util::read_lines;
 
 static DEBUG: bool = false;
 
 pub fn solve_day_04_part_1() -> u32 {
-    let sum = inner_solve_day_04_part_1(read_lines("./src/four/input.txt").unwrap());
-    println!("Final sum: {}", sum);
-    sum
+    inner_solve_day_04_part_1(read_lines("./src/four/input.txt").unwrap())
 }
 
 fn inner_solve_day_04_part_1(lines: Vec<String>) -> u32 {
@@ -29,9 +28,7 @@ fn inner_solve_day_04_part_1(lines: Vec<String>) -> u32 {
 }
 
 pub fn solve_day_04_part_2() -> u32 {
-    let sum = inner_solve_day_04_part_2(read_lines("./src/four/input.txt").unwrap());
-    println!("Final sum: {}", sum);
-    sum
+    inner_solve_day_04_part_2(read_lines("./src/four/input.txt").unwrap())
 }
 
 fn inner_solve_day_04_part_2(lines: Vec<String>) -> u32 {
@@ -87,7 +84,6 @@ fn parse_line(line: &str) -> (Vec<u32>, Vec<u32>) {
 #[cfg(test)]
 mod tests_part1 {
     use crate::four::{inner_solve_day_04_part_1, parse_line};
-    use crate::util::read_lines;
 
     #[test]
     fn parse() {
@@ -124,9 +120,6 @@ mod tests_part1 {
 
 #[cfg(test)]
 mod tests_part2 {
-    use crate::four::{inner_solve_day_04_part_2, parse_line};
-    use crate::util::read_lines;
-
     #[test]
     fn full_example() {
         let lines: Vec<String> = "

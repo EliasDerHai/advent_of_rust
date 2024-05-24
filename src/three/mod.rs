@@ -12,6 +12,8 @@ struct Position {
     col: u32,
 }
 
+static DEBUG: bool = false;
+
 pub fn solve_day_03_part_1() -> u32 {
     inner_solve_day_03_part_1(read_lines("./src/three/input.txt").unwrap())
 }
@@ -41,13 +43,13 @@ fn inner_solve_day_03_part_1(lines: Vec<String>) -> u32 {
         .collect();
 
 
-    println!("raw Numbers: {:?}", numbers);
-    println!("Numbers: {:?}", numbers.iter().map(|n| n.value).collect::<Vec<u32>>());
-    println!("Filtered: {:?}", filtered);
+    if DEBUG {
+        println!("raw Numbers: {:?}", numbers);
+        println!("Numbers: {:?}", numbers.iter().map(|n| n.value).collect::<Vec<u32>>());
+        println!("Filtered: {:?}", filtered);
+    }
 
-    let sum = filtered.iter().sum();
-    println!("Final sum: {sum}");
-    return sum;
+    filtered.iter().sum()
 }
 
 
@@ -66,33 +68,27 @@ fn inner_solve_day_03_part_2(lines: Vec<String>) -> u32 {
             acc
         });
 
-    println!("{:?}", numbers);
-    println!("{:?}", specials);
+    if DEBUG {
+        println!("{:?}", numbers);
+        println!("{:?}", specials);
+    }
 
-    let sum = specials.iter()
+    specials.iter()
         .map(|special| {
             let partial_numbers: Vec<&Number> = numbers.iter().filter(|&number| number.digits.iter()
                 .find(|&digit|
-                        (special.col == digit.col || special.col + 1 == digit.col || special.col == digit.col + 1)
-                            && (special.row == digit.row || special.row + 1 == digit.row || special.row == digit.row + 1)
-                    ).is_some()
-                ).collect();
+                    (special.col == digit.col || special.col + 1 == digit.col || special.col == digit.col + 1)
+                        && (special.row == digit.row || special.row + 1 == digit.row || special.row == digit.row + 1)
+                ).is_some()
+            ).collect();
 
             return if partial_numbers.len() != 2 {
                 0
             } else {
                 partial_numbers.iter().map(|n| n.value).product()
-            }
-
+            };
         })
-        .sum();
-
-    // println!("raw Numbers: {:?}", numbers);
-    // println!("Numbers: {:?}", numbers.iter().map(|n| n.value).collect::<Vec<u32>>());
-    // println!("Filtered: {:?}", filtered);
-
-    println!("Final sum: {sum}");
-    return sum;
+        .sum()
 }
 
 
@@ -141,7 +137,7 @@ fn parse_line(line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
             digits: digits_of_number.iter()
                 .enumerate()
                 .map(|(digit_index, &_c)| {
-                    Position { row, col: (line.len() - 1 - digit_index ) as u32 }
+                    Position { row, col: (line.len() - 1 - digit_index) as u32 }
                 })
                 .collect(),
             value,
@@ -150,8 +146,6 @@ fn parse_line(line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
         digits_of_number.clear();
     }
 
-    // println!("Numbers: {:?}", numbers);
-    // println!("Specials: {:?}", specials);
     return (numbers, specials);
 }
 
@@ -200,7 +194,7 @@ fn parse_line_part2(line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
             digits: digits_of_number.iter()
                 .enumerate()
                 .map(|(digit_index, &_c)| {
-                    Position { row, col: (line.len() - 1 - digit_index ) as u32 }
+                    Position { row, col: (line.len() - 1 - digit_index) as u32 }
                 })
                 .collect(),
             value,
@@ -209,14 +203,12 @@ fn parse_line_part2(line: &str, row: u32) -> (Vec<Number>, Vec<Position>) {
         digits_of_number.clear();
     }
 
-    // println!("Numbers: {:?}", numbers);
-    // println!("Specials: {:?}", specials);
     return (numbers, specials);
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::three::{inner_solve_day_03_part_1, inner_solve_day_03_part_2, parse_line, solve_day_03_part_1};
+    use crate::three::{inner_solve_day_03_part_1, inner_solve_day_03_part_2, parse_line};
     use crate::util::read_lines;
 
     #[test]
@@ -234,19 +226,19 @@ mod tests {
 
     #[test]
     fn should_parse_line_with_numbers() {
-        let (a, b) = parse_line("467..114..", 0);
+        let (a, _b) = parse_line("467..114..", 0);
         assert_eq!(2, a.len());
     }
 
     #[test]
     fn should_parse_line_with_special() {
-        let (a, b) = parse_line("...*......", 0);
+        let (_a, b) = parse_line("...*......", 0);
         assert_eq!(1, b.len());
     }
 
     #[test]
     fn should_parse_line_with_special_and_numbers() {
-        let (a, b) = parse_line("...*...111", 0);
+        let (_a, b) = parse_line("...*...111", 0);
         assert_eq!(1, b.len());
     }
 
@@ -319,7 +311,6 @@ mod tests {
 
         assert_eq!(925, inner_solve_day_03_part_1(lines));
     }
-
 
 
     #[test]

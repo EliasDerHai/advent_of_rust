@@ -1,55 +1,38 @@
 use crate::util::read_lines;
 
 pub fn solve_day_01_part_1() -> u32 {
-    let filename = "./src/one/input.txt";
-    match read_lines(filename) {
-        Ok(lines) => {
-            let mut sum: u32 = 0;
-            for line in lines {
-                let first = line
-                    .find(char::is_numeric)
-                    .unwrap_or(0);
-                let dec: u32 = line
-                    .chars()
-                    .nth(first)
-                    .unwrap()
-                    .to_digit(10)
-                    .unwrap_or(0) * 10;
+    let lines = read_lines("./src/one/input.txt").unwrap();
 
-                let last = line
-                    .rfind(char::is_numeric)
-                    .unwrap_or(0);
-                let single: u32 = line
-                    .chars()
-                    .nth(last)
-                    .unwrap()
-                    .to_digit(10)
-                    .unwrap_or(0);
+    let mut sum: u32 = 0;
+    for line in lines {
+        let first = line
+            .find(char::is_numeric)
+            .unwrap_or(0);
+        let dec: u32 = line
+            .chars()
+            .nth(first)
+            .unwrap()
+            .to_digit(10)
+            .unwrap_or(0) * 10;
 
-                sum += dec + single;
-            }
-            println!("Final sum: {sum}");
-            sum
-        }
-        Err(e) => {
-            println!("Error: {}", e);
-            0
-        }
+        let last = line
+            .rfind(char::is_numeric)
+            .unwrap_or(0);
+        let single: u32 = line
+            .chars()
+            .nth(last)
+            .unwrap()
+            .to_digit(10)
+            .unwrap_or(0);
+
+        sum += dec + single;
     }
+    sum
 }
 
 pub fn solve_day_01_part_2() -> u32 {
-    let filename = "./src/one/input.txt";
-
-    match read_lines(filename) {
-        Ok(lines) => {
-            calculate(lines)
-        }
-        Err(e) => {
-            println!("Error: {}", e);
-            0
-        }
-    }
+    let lines = read_lines("./src/one/input.txt").unwrap();
+    calculate(lines)
 }
 
 #[cfg(test)]

@@ -32,7 +32,6 @@ pub fn solve_day_02_part_1() -> u32 {
         .map(|game| game.id)
         .sum();
 
-    println!("Final sum: {check_sum}");
     check_sum
 }
 
@@ -59,7 +58,6 @@ pub fn solve_day_02_part_2() -> u32 {
         })
         .sum();
 
-    println!("Final sum: {check_sum}");
     check_sum
 }
 
