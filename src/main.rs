@@ -36,8 +36,8 @@ fn solve_day_and_part(arg: &str) -> Result<u32, &str> {
         "32" => Ok(solve_day_03_part_2()),
         "41" => Ok(solve_day_04_part_1()),
         "42" => Ok(solve_day_04_part_2()),
-        "51" => Ok(solve_day_05_part_1()),
-        "52" => Ok(solve_day_05_part_2()),
+        "51" => solve_day_05_part_1().try_into().map_err(|_| "Value too large to fit in u32"),
+        "52" => solve_day_05_part_2().try_into().map_err(|_| "Value too large to fit in u32"),
         _ => Err("Not yet implemented for ")
     }
 }

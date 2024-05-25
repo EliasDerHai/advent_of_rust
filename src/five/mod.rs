@@ -2,39 +2,77 @@ use crate::util::read_lines;
 
 #[derive(Debug, PartialEq)]
 struct SeedMap {
-    seeds: Vec<u32>,
+    seeds: Vec<u64>,
     mappings: Vec<Vec<SourceTargetMapping>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 struct SourceTargetMapping {
-    source_start: u32,
-    destination_start: u32,
-    length: u32,
+    source_start: u64,
+    destination_start: u64,
+    length: u64,
 }
 
-
-pub fn solve_day_05_part_1() -> u32 {
+pub fn solve_day_05_part_1() -> u64 {
     inner_solve_day_05_part_1(read_lines("./src/five/input.txt").unwrap())
 }
 
-fn inner_solve_day_05_part_1(_lines: Vec<String>) -> u32 {
-    0
+fn inner_solve_day_05_part_1(lines: Vec<String>) -> u64 {
+    let seed_map: SeedMap = parse(lines.into_iter().collect());
+    let mut cache = seed_map.seeds.clone();
+
+    let mut log_active: bool = true; // true;
+    if log_active {
+        println!("{:?}", cache);
+    }
+
+    seed_map.mappings.iter().for_each(|mapping| {
+        log_active = true; // true ;
+        if log_active {
+            println!("{:?}", mapping);
+        }
+        for val in cache.iter_mut() {
+            *val = map_to_next_id(*val, mapping, log_active);
+        }
+    });
+
+    println!("{:?}", cache);
+
+    *cache.iter().min().unwrap()
 }
 
-pub fn solve_day_05_part_2() -> u32 {
+fn map_to_next_id(val: u64, mapping: &Vec<SourceTargetMapping>, log_active: bool) -> u64 {
+    mapping.iter()
+        .filter(|&m| m.source_start <= val && val < m.source_start + m.length)
+        .next()
+        .map(|mapping| {
+            let offset = val - mapping.source_start;
+            let mapped = mapping.destination_start + offset;
+            if log_active {
+                println!("{val} -> {mapped} (mapping: {:?}, offset: {offset})", mapping);
+            }
+            mapped
+        }).unwrap_or_else(|| {
+        if log_active {
+            println!("{val} -> {val} (no mapping)");
+        }
+        val
+    })
+}
+
+pub fn solve_day_05_part_2() -> u64 {
     inner_solve_day_05_part_2(read_lines("./src/five/input.txt").unwrap())
 }
 
-fn inner_solve_day_05_part_2(_lines: Vec<String>) -> u32 {
+fn inner_solve_day_05_part_2(_lines: Vec<String>) -> u64 {
     0
 }
 
-fn parse(s: String) -> SeedMap {
-    let mut non_empty_lines = s.lines().filter(|&line| !line.is_empty());
+fn parse(lines: Vec<String>) -> SeedMap {
+    let mut non_empty_lines = lines.into_iter().filter(|line| !line.is_empty());
 
-    let seeds: Vec<u32> = non_empty_lines
-        .next().unwrap()[11..]
+    let first_line = non_empty_lines.next().unwrap();
+    let seeds: Vec<u64> = first_line[first_line.find(':').unwrap()..]
         .split(' ')
         .filter_map(|number| number.parse().ok())
         .collect();
@@ -45,7 +83,7 @@ fn parse(s: String) -> SeedMap {
     while let Some(line) = non_empty_lines.next() {
         if line.ends_with(" map:") {
             if !current.is_empty() {
-                mappings.push(current.clone());
+                flush_mapping_cache(&mut mappings, &mut current);
             }
         } else {
             let mut mapping_chunks = line.split(' ')
@@ -60,6 +98,8 @@ fn parse(s: String) -> SeedMap {
             });
         }
     }
+    // flush last mapping (no more line.ends_with(" map:")
+    flush_mapping_cache(&mut mappings, &mut current);
 
     SeedMap {
         seeds,
@@ -67,11 +107,16 @@ fn parse(s: String) -> SeedMap {
     }
 }
 
+fn flush_mapping_cache(mappings: &mut Vec<Vec<SourceTargetMapping>>, current: &mut Vec<SourceTargetMapping>) {
+    mappings.push(current.clone());
+    current.clear();
+}
+
 #[cfg(test)]
 mod test_part1 {
-    use crate::five::{parse, SourceTargetMapping};
+    use crate::five::{inner_solve_day_05_part_1, parse, solve_day_05_part_1, SourceTargetMapping};
 
-    // destination range start, source range start, range length.
+    // destination range start, source range start, range length
     const TEST_INPUT: &str = "
     seeds: 79 14 55 13
 
@@ -109,16 +154,40 @@ mod test_part1 {
 
     #[test]
     fn should_parse_test_input() {
-        let parsed = parse(TEST_INPUT.to_string());
+        let lines = TEST_INPUT.to_string().lines().map(|line| line.to_string()).collect();
+        let parsed = parse(lines);
 
         println!("{:?}", parsed);
 
         assert_eq!(vec![79, 14, 55, 13], parsed.seeds);
+        assert_eq!(7, parsed.mappings.len());
 
         let expected_first_mappings = vec![
             SourceTargetMapping { source_start: 98, destination_start: 50, length: 2 },
-            SourceTargetMapping { source_start: 50, destination_start: 52, length: 48 }
+            SourceTargetMapping { source_start: 50, destination_start: 52, length: 48 },
         ];
         assert_eq!(expected_first_mappings, *parsed.mappings.get(0).unwrap());
+
+        let expected_second_mappings = vec![
+            SourceTargetMapping { source_start: 15, destination_start: 0, length: 37 },
+            SourceTargetMapping { source_start: 52, destination_start: 37, length: 2 },
+            SourceTargetMapping { source_start: 0, destination_start: 39, length: 15 },
+        ];
+        assert_eq!(expected_second_mappings, *parsed.mappings.get(1).unwrap());
+    }
+
+    #[test]
+    fn should_solve_day_05_part_1_example() {
+        let lines = TEST_INPUT.to_string().lines().map(|line| line.to_string()).collect();
+        let result = inner_solve_day_05_part_1(lines);
+
+        assert_eq!(35, result);
+    }
+
+    #[test]
+    fn should_solve_day_05_part_1() {
+        let result = solve_day_05_part_1();
+
+        assert_eq!(510109797, result);
     }
 }
