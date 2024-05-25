@@ -17,55 +17,42 @@ pub fn solve_day_05_part_1() -> u64 {
     inner_solve_day_05_part_1(read_lines("./src/five/input.txt").unwrap())
 }
 
-fn inner_solve_day_05_part_1(lines: Vec<String>) -> u64 {
-    let seed_map: SeedMap = parse(lines.into_iter().collect());
-    let mut cache = seed_map.seeds.clone();
-
-    let mut log_active: bool = true; // true;
-    if log_active {
-        println!("{:?}", cache);
-    }
-
-    seed_map.mappings.iter().for_each(|mapping| {
-        log_active = true; // true ;
-        if log_active {
-            println!("{:?}", mapping);
-        }
-        for val in cache.iter_mut() {
-            *val = map_to_next_id(*val, mapping, log_active);
-        }
-    });
-
-    println!("{:?}", cache);
-
-    *cache.iter().min().unwrap()
-}
-
-fn map_to_next_id(val: u64, mapping: &Vec<SourceTargetMapping>, log_active: bool) -> u64 {
-    mapping.iter()
-        .filter(|&m| m.source_start <= val && val < m.source_start + m.length)
-        .next()
-        .map(|mapping| {
-            let offset = val - mapping.source_start;
-            let mapped = mapping.destination_start + offset;
-            if log_active {
-                println!("{val} -> {mapped} (mapping: {:?}, offset: {offset})", mapping);
-            }
-            mapped
-        }).unwrap_or_else(|| {
-        if log_active {
-            println!("{val} -> {val} (no mapping)");
-        }
-        val
-    })
-}
-
 pub fn solve_day_05_part_2() -> u64 {
     inner_solve_day_05_part_2(read_lines("./src/five/input.txt").unwrap())
 }
 
-fn inner_solve_day_05_part_2(_lines: Vec<String>) -> u64 {
-    0
+fn inner_solve_day_05_part_1(lines: Vec<String>) -> u64 {
+    let seed_map: SeedMap = parse(lines.into_iter().collect());
+    let mut cache = seed_map.seeds.clone();
+
+    seed_map.mappings.iter().for_each(|mapping| {
+        for val in cache.iter_mut() {
+            *val = map_to_next_id(*val, mapping);
+        }
+    });
+
+    *cache.iter().min().unwrap()
+}
+
+fn inner_solve_day_05_part_2(lines: Vec<String>) -> u64 {
+    let seed_map: SeedMap = parse(lines.into_iter().collect());
+
+    let mut cache: Vec<u64> = seed_map.seeds.chunks(2)
+        .flat_map(|chunk| {
+            if let [start_value, range_value] = chunk {
+                (*start_value..*start_value + *range_value).collect::<Vec<_>>()
+            } else {
+                vec![]
+            }
+        }).collect();
+
+    seed_map.mappings.iter().for_each(|mapping| {
+        for val in cache.iter_mut() {
+            *val = map_to_next_id(*val, mapping);
+        }
+    });
+
+    *cache.iter().min().unwrap()
 }
 
 fn parse(lines: Vec<String>) -> SeedMap {
@@ -112,9 +99,19 @@ fn flush_mapping_cache(mappings: &mut Vec<Vec<SourceTargetMapping>>, current: &m
     current.clear();
 }
 
+fn map_to_next_id(val: u64, mapping: &Vec<SourceTargetMapping>) -> u64 {
+    mapping.iter()
+        .filter(|&m| m.source_start <= val && val < m.source_start + m.length)
+        .next()
+        .map(|mapping| {
+            let offset = val - mapping.source_start;
+            mapping.destination_start + offset
+        }).unwrap_or_else(|| val)
+}
+
 #[cfg(test)]
-mod test_part1 {
-    use crate::five::{inner_solve_day_05_part_1, parse, solve_day_05_part_1, SourceTargetMapping};
+mod test {
+    use crate::five::{inner_solve_day_05_part_1, inner_solve_day_05_part_2, parse, solve_day_05_part_1, solve_day_05_part_2, SourceTargetMapping};
 
     // destination range start, source range start, range length
     const TEST_INPUT: &str = "
@@ -157,8 +154,6 @@ mod test_part1 {
         let lines = TEST_INPUT.to_string().lines().map(|line| line.to_string()).collect();
         let parsed = parse(lines);
 
-        println!("{:?}", parsed);
-
         assert_eq!(vec![79, 14, 55, 13], parsed.seeds);
         assert_eq!(7, parsed.mappings.len());
 
@@ -190,4 +185,21 @@ mod test_part1 {
 
         assert_eq!(510109797, result);
     }
+
+    #[test]
+    fn should_solve_day_05_part_2_example() {
+        let lines = TEST_INPUT.to_string().lines().map(|line| line.to_string()).collect();
+        let result = inner_solve_day_05_part_2(lines);
+
+        assert_eq!(46, result);
+    }
+
+    #[test]
+    fn should_solve_day_05_part_2() {
+        let result = solve_day_05_part_2();
+
+        assert_eq!(46, result);
+    }
+
 }
+
