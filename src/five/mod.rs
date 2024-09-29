@@ -13,6 +13,18 @@ struct SourceTargetMapping {
     length: u64,
 }
 
+#[derive(Debug, PartialEq)]
+struct SeedRangeMap {
+    seeds: Vec<SeedRange>,
+    mappings: Vec<Vec<SourceTargetMapping>>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct SeedRange {
+    start_index: u64, // inclusive
+    end_index: u64 // exclusive
+}
+
 pub fn solve_day_05_part_1() -> u64 {
     inner_solve_day_05_part_1(read_lines("./src/five/input.txt").unwrap())
 }
